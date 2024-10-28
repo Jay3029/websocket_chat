@@ -1,6 +1,9 @@
-package com.sparta.chatting_test;
+package com.sparta.chatting_test.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.chatting_test.chat.entity.ChatMessage;
+import com.sparta.chatting_test.chat.entity.ChatRoom;
+import com.sparta.chatting_test.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,7 +23,7 @@ public class WebSockChatHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         log.info("payload {}", payload);
         ChatMessage chatMessage = objectMapper.readValue(payload, ChatMessage.class);
-        ChatRoom room = chatService.findRoomById(chatMessage.getRoomId());
+        ChatRoom room = chatService.findRoom(chatMessage.getRoomId());
 
         if(room != null) {
             room.handleActions(session, chatMessage, chatService);

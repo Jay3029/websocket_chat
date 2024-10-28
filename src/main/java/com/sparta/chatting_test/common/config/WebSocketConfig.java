@@ -1,4 +1,4 @@
-package com.sparta.chatting_test;
+package com.sparta.chatting_test.common.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
