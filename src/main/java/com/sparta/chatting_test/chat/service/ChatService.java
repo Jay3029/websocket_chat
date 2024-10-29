@@ -2,9 +2,10 @@ package com.sparta.chatting_test.chat.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.chatting_test.chat.dto.ChatRoomResponseDto;
-import com.sparta.chatting_test.chat.dto.InviteRequestDto;
-import com.sparta.chatting_test.chat.entity.ChatMessage;
+import com.sparta.chatting_test.chat.dto.ChatMessage;
+import com.sparta.chatting_test.chat.entity.ChatHistory;
 import com.sparta.chatting_test.chat.entity.ChatRoom;
+import com.sparta.chatting_test.chat.repository.ChatMessageRepository;
 import com.sparta.chatting_test.chat.repository.ChatRoomRepository;
 import com.sparta.chatting_test.user.entity.User;
 import com.sparta.chatting_test.user.repository.UserRepository;
@@ -26,6 +27,7 @@ public class ChatService {
     private final ObjectMapper objectMapper;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final ChatMessageRepository chatMessageRepository;
     private Map<String, ChatRoom> chatRooms;
 
     @PostConstruct
@@ -58,7 +60,7 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow();
 
         ChatMessage enterMessage = new ChatMessage();
-        enterMessage.setType(ChatMessage.MessageType.ENTER);
+        enterMessage.setMessageType(ChatMessage.MessageType.ENTER);
         enterMessage.setSender(user.getNickname());
         chatRoom.handleActions(session, enterMessage, this);
 
@@ -70,7 +72,7 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow();
 
         ChatMessage exitMessage = new ChatMessage();
-        exitMessage.setType(ChatMessage.MessageType.EXIT);
+        exitMessage.setMessageType(ChatMessage.MessageType.EXIT);
         exitMessage.setSender(user.getNickname());
         chatRoom.handleActions(session, exitMessage, this);
         chatRoom.getSessions().remove(session); // 세션 제거
@@ -134,7 +136,13 @@ public class ChatService {
     public <T> void sendMessage(WebSocketSession session, T message) {
         try {
             // ChatMessage 객체를 직렬화한 값으로 TextMessage 생성
+            ChatMessage chatMessage = (ChatMessage) message;
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+
+            ChatRoom chatRoom = chatRoomRepository.findById(chatMessage.getRoomId()).orElseThrow();
+            ChatHistory chatHistory = new ChatHistory(chatMessage.getMessageType(), chatMessage.getSender(), chatMessage.getMessage(), chatRoom);
+            chatMessageRepository.save(chatHistory);
+            log.info("message : " + message);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }

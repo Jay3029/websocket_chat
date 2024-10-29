@@ -1,7 +1,7 @@
 package com.sparta.chatting_test.chat.entity;
 
+import com.sparta.chatting_test.chat.dto.ChatMessage;
 import com.sparta.chatting_test.chat.service.ChatService;
-import com.sparta.chatting_test.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,17 +32,17 @@ public class ChatRoom {
     }
 
     public void handleActions(WebSocketSession session, ChatMessage chatMessage, ChatService chatService) {
-        if (chatMessage.getType() == ChatMessage.MessageType.ENTER) {
+        if (chatMessage.getMessageType() == ChatMessage.MessageType.ENTER) {
             sessions.add(session);
             chatMessage.setMessage(chatMessage.getSender() + "님이 입장했습니다.");
-        } else if (chatMessage.getType() == ChatMessage.MessageType.EXIT) {
+        } else if (chatMessage.getMessageType() == ChatMessage.MessageType.EXIT) {
             sessions.remove(session);
             chatMessage.setMessage(chatMessage.getSender() + "님이 퇴장했습니다.");
         }
         sendMessage(chatMessage, chatService);
     }
 
-    public <T> void sendMessage(T message, ChatService chatService) {
+    public <T> void sendMessage(ChatMessage message, ChatService chatService) {
         sessions.parallelStream().forEach(session -> chatService.sendMessage(session, message));
     }
 

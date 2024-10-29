@@ -1,9 +1,6 @@
 package com.sparta.chatting_test.chat.controller;
 
 import com.sparta.chatting_test.chat.dto.ChatRoomResponseDto;
-import com.sparta.chatting_test.chat.dto.InviteRequestDto;
-import com.sparta.chatting_test.chat.entity.ChatMessage;
-import com.sparta.chatting_test.chat.entity.ChatRoom;
 import com.sparta.chatting_test.chat.service.ChatService;
 import com.sparta.chatting_test.common.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
